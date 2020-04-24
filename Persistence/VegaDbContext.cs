@@ -10,5 +10,6 @@ namespace vega_api_dotnetcore.Persistence
         }
 
         public DbSet<Make> Makes { get; set; }
+        public DbSet<Feature> Features { get; set; }
     }
 }
