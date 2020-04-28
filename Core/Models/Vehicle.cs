@@ -4,7 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace vega_api_dotnetcore.Models
+namespace vega_api_dotnetcore.Core.Models
 {
     [Table("Vehicles")]
     public class Vehicle

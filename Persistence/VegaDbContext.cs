@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using vega_api_dotnetcore.Models;
+using vega_api_dotnetcore.Core.Models;
 
 namespace vega_api_dotnetcore.Persistence
 {

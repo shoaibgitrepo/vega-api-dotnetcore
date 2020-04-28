@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace vega_api_dotnetcore.Models
+namespace vega_api_dotnetcore.Core.Models
 {
     public class Make
     {
