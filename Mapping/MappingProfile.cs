@@ -11,6 +11,7 @@ namespace vega_api_dotnetcore.Mapping
         public MappingProfile()
         {
             // Domain to API Resources 
+            CreateMap<Photo, PhotoResource>();
             CreateMap<Make, MakeResource>();
             CreateMap<Make, KeyValuePairResource>();
             CreateMap<Model, KeyValuePairResource>();
