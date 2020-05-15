@@ -41,8 +41,10 @@ namespace vega_api_dotnetcore
             services.Configure<PhotoSettings>(Configuration.GetSection("PhotoSettings"));
 
             services.AddScoped<IVehicleRepository, VehicleRepository>();
-
+            services.AddScoped<IPhotoRepository, PhotoRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddTransient<IPhotoService, PhotoService>();
+            services.AddTransient<IPhotoStorage, PhotoStorage>();
 
             services.AddAutoMapper(typeof(Startup));
 

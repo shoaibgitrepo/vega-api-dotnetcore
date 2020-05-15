@@ -4,5 +4,9 @@ namespace vega_api_dotnetcore.Extensions
     {
         string SortBy { get; set; }
         bool IsSortAscending { get; set; }
+        int? MakeId { get; set; }
+        int? ModelId { get; set; }
+        int Page { get; set; }
+        byte PageSize { get; set; }
     }
 }

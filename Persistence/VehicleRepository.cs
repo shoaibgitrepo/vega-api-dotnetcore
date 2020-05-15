@@ -18,20 +18,19 @@ namespace vega_api_dotnetcore.Persistence
             this.context = context;
         }
 
-        public async Task<IEnumerable<Vehicle>> GetVehiclesAsync(VehicleQuery queryObj, bool includeRelated = true)
+        public async Task<QueryResult<Vehicle>> GetVehiclesAsync(VehicleQuery queryObj, bool includeRelated = true)
         {
             // if (!includeRelated)
             //     return await context.Vehicles.ToListAsync();
 
+            var result = new QueryResult<Vehicle>();
+
             var query = context.Vehicles
-                .Include(v => v.Features)
-                    .ThenInclude(vf => vf.Feature)
                 .Include(v => v.Model)
                     .ThenInclude(m => m.Make)
                 .AsQueryable();
 
-            if (queryObj.MakeId.HasValue)
-                query = query.Where(v => v.Model.MakeId == queryObj.MakeId.Value);
+            query = query.ApplyFiltering(queryObj);
 
             var columnsMap = new Dictionary<string, Expression<Func<Vehicle, object>>>()
             {
@@ -39,10 +38,13 @@ namespace vega_api_dotnetcore.Persistence
                 ["Model"] = v => v.Model.Name,
                 ["contactName"] = v => v.ContactName
             };
-
             query = query.ApplySorting(queryObj, columnsMap);
 
-            return await query.ToListAsync();
+            result.TotalItems = await query.CountAsync();
+            query = query.ApplyPaging(queryObj);
+
+            result.Items = await query.ToListAsync();
+            return result;
         }
 
         public async Task<Vehicle> GetVehicleAsync(int id, bool includeRelated = true)

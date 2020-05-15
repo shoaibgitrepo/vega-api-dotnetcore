@@ -10,6 +10,7 @@ using vega_api_dotnetcore.Core;
 using vega_api_dotnetcore.Core.Models;
 using Microsoft.Extensions.Options;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace vega_api_dotnetcore.Controllers
 {
@@ -18,16 +19,26 @@ namespace vega_api_dotnetcore.Controllers
     {
         private readonly IWebHostEnvironment env;
         private readonly IVehicleRepository repository;
-        private readonly IUnitOfWork unitOfWork;
         private readonly IMapper mapper;
         private readonly PhotoSettings photoSettings;
-        public PhotosController(IWebHostEnvironment env, IVehicleRepository repository, IUnitOfWork unitOfWork, IMapper mapper, IOptionsSnapshot<PhotoSettings> options)
+        private readonly IPhotoService photoService;
+        private readonly IPhotoRepository photoRepository;
+        public PhotosController(IWebHostEnvironment env, IVehicleRepository vehicleRepository, IPhotoRepository photoRepository, IMapper mapper, IOptionsSnapshot<PhotoSettings> options, IPhotoService photoService)
         {
+            this.photoRepository = photoRepository;
+            this.photoService = photoService;
             this.photoSettings = options.Value;
             this.mapper = mapper;
-            this.unitOfWork = unitOfWork;
-            this.repository = repository;
+            this.repository = vehicleRepository;
             this.env = env;
+        }
+
+        [HttpGet]
+        public async Task<IEnumerable<PhotoResource>> GetPhotos(int vehicleId)
+        {
+            var photos = await photoRepository.GetPhotos(vehicleId);
+
+            return mapper.Map<IEnumerable<Photo>, IEnumerable<PhotoResource>>(photos);
         }
 
         [HttpPost]
@@ -44,21 +55,7 @@ namespace vega_api_dotnetcore.Controllers
 
             var uploadsFolderPath = Path.Combine(env.WebRootPath, "uploads");
 
-            if (!Directory.Exists(uploadsFolderPath))
-                Directory.CreateDirectory(uploadsFolderPath);
-
-            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-            var filePath = Path.Combine(uploadsFolderPath, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            var photo = new Photo { FileName = fileName };
-
-            vehicle.Photos.Add(photo);
-            await unitOfWork.CompleteAsync();
+            var photo = await photoService.UploadPhoto(vehicle, file, uploadsFolderPath);
 
             return Ok(mapper.Map<Photo, PhotoResource>(photo));
         }

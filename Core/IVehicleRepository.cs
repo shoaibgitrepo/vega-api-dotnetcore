@@ -8,7 +8,7 @@ namespace vega_api_dotnetcore.Core
     {
         void Add(Vehicle vehicle);
         Task<Vehicle> GetVehicleAsync(int id, bool includeRelated = true);
-        Task<IEnumerable<Vehicle>> GetVehiclesAsync(VehicleQuery filter, bool includeRelated = true);
+        Task<QueryResult<Vehicle>> GetVehiclesAsync(VehicleQuery filter, bool includeRelated = true);
         Task<Vehicle> GetVehicleWithMakeAsync(int id);
         void Remove(Vehicle vehicle);
     }
