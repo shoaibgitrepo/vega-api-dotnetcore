@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using vega_api_dotnetcore.Controllers.Resources;
 using vega_api_dotnetcore.Core;
@@ -23,6 +24,7 @@ namespace vega_api_dotnetcore.Controllers
         }
 
         [HttpPost]
+        [Authorize(Policies.RequireAdminRole)]
         public async Task<IActionResult> CreateVehicle([FromBody] SaveVehicleResource vehicleResource)
         {
             // Domain model validation
@@ -62,6 +64,7 @@ namespace vega_api_dotnetcore.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> UpdateVehicle(int id, [FromBody] SaveVehicleResource vehicleResource)
         {
             // Domain model validation
@@ -102,6 +105,7 @@ namespace vega_api_dotnetcore.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteVehicle(int id)
         {
             var vehicle = await repository.GetVehicleAsync(id, includeRelated: false);
