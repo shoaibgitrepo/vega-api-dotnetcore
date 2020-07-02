@@ -1,12 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using vega_api_dotnetcore.Controllers.Resources;
 using vega_api_dotnetcore.Core;
 using vega_api_dotnetcore.Core.Models;
+using vega_api_dotnetcore.Persistence;
 
 namespace vega_api_dotnetcore.Controllers
 {
@@ -16,37 +19,39 @@ namespace vega_api_dotnetcore.Controllers
         private readonly IMapper mapper;
         private readonly IVehicleRepository repository;
         private readonly IUnitOfWork unitOfWork;
-        public VehiclesController(IMapper mapper, IVehicleRepository repository, IUnitOfWork unitOfWork)
+        private readonly VegaDbContext context;
+        public VehiclesController(IMapper mapper, IVehicleRepository repository, IUnitOfWork unitOfWork, VegaDbContext context)
         {
+            this.context = context;
             this.unitOfWork = unitOfWork;
             this.repository = repository;
             this.mapper = mapper;
         }
 
         [HttpPost]
-        [Authorize(Policies.RequireAdminRole)]
+        // [Authorize(Policies.RequireAdminRole)]
         public async Task<IActionResult> CreateVehicle([FromBody] SaveVehicleResource vehicleResource)
         {
             // Domain model validation
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // // Vehicle modelId validation
-            // var model = await context.Models.FindAsync(vehicleResource.ModelId);
-            // if (model == null)
-            // {
-            //     ModelState.AddModelError("ModelId", "Invalid modelId.");
-            //     return BadRequest(ModelState);
-            // }
+            // Vehicle modelId validation
+            var model = await context.Models.FindAsync(vehicleResource.ModelId);
+            if (model == null)
+            {
+                ModelState.AddModelError("ModelId", "Invalid modelId.");
+                return BadRequest(ModelState);
+            }
 
-            // // Vehicle features validation
-            // var features = await context.Features.Where(f => vehicleResource.Features.Contains(f.Id)).ToListAsync();
+            // Vehicle features validation
+            var features = await context.Features.Where(f => vehicleResource.Features.Contains(f.Id)).ToListAsync();
 
-            // if (features.Count < vehicleResource.Features.Count)
-            // {
-            //     ModelState.AddModelError("Features", "Invalid featureId.");
-            //     return BadRequest(ModelState);
-            // }
+            if (features.Count < vehicleResource.Features.Count)
+            {
+                ModelState.AddModelError("Features", "Invalid featureId.");
+                return BadRequest(ModelState);
+            }
 
 
 

@@ -35,8 +35,9 @@ namespace vega_api_dotnetcore.Persistence
             var columnsMap = new Dictionary<string, Expression<Func<Vehicle, object>>>()
             {
                 ["make"] = v => v.Model.Make.Name,
-                ["Model"] = v => v.Model.Name,
-                ["contactName"] = v => v.ContactName
+                ["model"] = v => v.Model.Name,
+                ["contactName"] = v => v.ContactName,
+                ["id"] = v => v.Id
             };
             query = query.ApplySorting(queryObj, columnsMap);
 
