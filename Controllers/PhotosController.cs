@@ -6,11 +6,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using vega_api_dotnetcore.Controllers.Resources;
-using vega_api_dotnetcore.Core;
+using vega_api_dotnetcore.Core.Repositories;
 using vega_api_dotnetcore.Core.Models;
 using Microsoft.Extensions.Options;
 using System.Linq;
 using System.Collections.Generic;
+using vega_api_dotnetcore.Core;
 
 namespace vega_api_dotnetcore.Controllers
 {
@@ -18,25 +19,28 @@ namespace vega_api_dotnetcore.Controllers
     public class PhotosController : ControllerBase
     {
         private readonly IWebHostEnvironment env;
-        private readonly IVehicleRepository repository;
         private readonly IMapper mapper;
         private readonly PhotoSettings photoSettings;
         private readonly IPhotoService photoService;
-        private readonly IPhotoRepository photoRepository;
-        public PhotosController(IWebHostEnvironment env, IVehicleRepository vehicleRepository, IPhotoRepository photoRepository, IMapper mapper, IOptionsSnapshot<PhotoSettings> options, IPhotoService photoService)
+        private readonly IUnitOfWork unitOfWork;
+        public PhotosController(
+            IWebHostEnvironment env,
+            IUnitOfWork unitOfWork,
+            IMapper mapper,
+            IOptionsSnapshot<PhotoSettings> options,
+            IPhotoService photoService)
         {
-            this.photoRepository = photoRepository;
+            this.unitOfWork = unitOfWork;
             this.photoService = photoService;
             this.photoSettings = options.Value;
             this.mapper = mapper;
-            this.repository = vehicleRepository;
             this.env = env;
         }
 
         [HttpGet]
         public async Task<IEnumerable<PhotoResource>> GetPhotos(int vehicleId)
         {
-            var photos = await photoRepository.GetPhotos(vehicleId);
+            var photos = await unitOfWork.Photos.GetPhotos(vehicleId);
 
             return mapper.Map<IEnumerable<Photo>, IEnumerable<PhotoResource>>(photos);
         }
@@ -44,7 +48,7 @@ namespace vega_api_dotnetcore.Controllers
         [HttpPost]
         public async Task<IActionResult> Upload(int vehicleId, IFormFile file)
         {
-            var vehicle = await repository.GetVehicleAsync(vehicleId, includeRelated: false);
+            var vehicle = await unitOfWork.Vehicles.GetVehicleAsync(vehicleId, includeRelated: false);
             if (vehicle == null)
                 return NotFound("Not found");
 

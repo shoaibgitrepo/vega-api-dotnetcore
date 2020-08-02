@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using vega_api_dotnetcore.Core.Repositories;
 
 namespace vega_api_dotnetcore.Core
 {

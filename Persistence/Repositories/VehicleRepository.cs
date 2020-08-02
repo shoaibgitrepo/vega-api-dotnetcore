@@ -4,18 +4,22 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using vega_api_dotnetcore.Core;
+using vega_api_dotnetcore.Core.Repositories;
 using vega_api_dotnetcore.Core.Models;
 using vega_api_dotnetcore.Extensions;
 
-namespace vega_api_dotnetcore.Persistence
+namespace vega_api_dotnetcore.Persistence.Repositories
 {
-    public class VehicleRepository : IVehicleRepository
+    public class VehicleRepository : Repository<Vehicle>, IVehicleRepository
     {
-        private readonly VegaDbContext context;
         public VehicleRepository(VegaDbContext context)
+            : base(context)
         {
-            this.context = context;
+        }
+
+        public VegaDbContext vegaDbContext
+        {
+            get { return (VegaDbContext)context; }
         }
 
         public async Task<QueryResult<Vehicle>> GetVehiclesAsync(VehicleQuery queryObj, bool includeRelated = true)
@@ -25,7 +29,7 @@ namespace vega_api_dotnetcore.Persistence
 
             var result = new QueryResult<Vehicle>();
 
-            var query = context.Vehicles
+            var query = vegaDbContext.Vehicles
                 .Include(v => v.Model)
                     .ThenInclude(m => m.Make)
                 .AsQueryable();
@@ -51,9 +55,9 @@ namespace vega_api_dotnetcore.Persistence
         public async Task<Vehicle> GetVehicleAsync(int id, bool includeRelated = true)
         {
             if (!includeRelated)
-                return await context.Vehicles.FindAsync(id);
+                return await vegaDbContext.Vehicles.FindAsync(id);
 
-            return await context.Vehicles
+            return await vegaDbContext.Vehicles
                 .Include(v => v.Features)
                     .ThenInclude(vf => vf.Feature)
                 .Include(v => v.Model)
@@ -63,22 +67,10 @@ namespace vega_api_dotnetcore.Persistence
 
         public async Task<Vehicle> GetVehicleWithMakeAsync(int id)
         {
-            return await context.Vehicles
+            return await vegaDbContext.Vehicles
                 .Include(v => v.Model)
                     .ThenInclude(m => m.Make)
                 .SingleOrDefaultAsync(v => v.Id == id);
         }
-
-        public void Add(Vehicle vehicle)
-        {
-            context.Vehicles.Add(vehicle);
-        }
-
-        public void Remove(Vehicle vehicle)
-        {
-            context.Remove(vehicle);
-        }
-
-
     }
 }

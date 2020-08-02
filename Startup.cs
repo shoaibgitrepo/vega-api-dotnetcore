@@ -14,8 +14,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using vega_api_dotnetcore.Controllers;
-using vega_api_dotnetcore.Core;
+using vega_api_dotnetcore.Core.Repositories;
 using vega_api_dotnetcore.Core.Models;
+using vega_api_dotnetcore.Persistence.Repositories;
+using vega_api_dotnetcore.Core;
 using vega_api_dotnetcore.Persistence;
 
 namespace vega_api_dotnetcore
